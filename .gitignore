@@ -1,0 +1,9 @@
+
+# object files
+*.o
+
+# backups
+*~
+
+# executable
+poinsot
