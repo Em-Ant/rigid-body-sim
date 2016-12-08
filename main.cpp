@@ -38,7 +38,7 @@ static int stacks = 48;
 
 /* Applying INITIAL CONDITIONS */
     vect    I	{4,2,6}; 		// CENTRAL PRINCIPAL INERTIA MOMENTS
-    vstate  V  	{0,0,-7,		// INITIAL MASS CENTER POSITION 
+    vstate  V  	{0,0,-7,		// INITIAL MASS CENTER POSITION
                  0,0,0,			// INITIAL MOMENTUM
                  30,0,0,1,		// INITIAL 	QUATERNION
                  0,10,0};		// INITIAL ANGULAR MOMENTUM
@@ -118,7 +118,7 @@ static void display(void)
 
     vect omega, a_mom;
     b.get_omega(omega);
-    b.get_angMom(a_mom);
+    b.get_angular_momentum(a_mom);
 
     glPushMatrix();
     float k = 2.5/sqrt(omega[0]*omega[0]+omega[1]*omega[1]+omega[2]*omega[2]);
@@ -227,4 +227,3 @@ int main(int argc, char *argv[])
 
     return EXIT_SUCCESS;
 }
-

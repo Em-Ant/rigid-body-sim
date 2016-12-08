@@ -9,6 +9,8 @@
 #ifndef DEFS_H_INCLUDED
 #define DEFS_H_INCLUDED
 #include <array>
+
+// use double precision
 #define _DOUBLE
 
 #ifdef _DOUBLE

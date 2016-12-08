@@ -9,13 +9,15 @@
 #include "rbody.h"
 #include <math.h>
 
-Rbody::Rbody(FLOAT m, vect I, vstate V)
+Rbody::Rbody( FLOAT mass,
+              vect diagonal_inertia_tensor,
+              vstate init_state)
 {
-    imass = 1/m;
+    imass = 1/mass;
     for(int i = 0; i<3; ++i)
-        iinertia[i] = 1/I[i];
+        iinertia[i] = 1/diagonal_inertia_tensor[i];
     for(int i = 0; i<13; ++i)
-        SV[i] = V[i];
+        SV[i] = init_state[i];
     FLOAT cs = cos(SV[6]*PI/360);
     FLOAT sn = sin(SV[6]*PI/360);
     SV[6] = cs;
@@ -30,7 +32,7 @@ Rbody::Rbody(FLOAT m, vect I, vstate V)
     k=0;l=1;m=0;
 }
 
-//Rbody::~Rbody(){} //Virtual Destructor. Do Nothing, no memory allocated
+//Rbody::~Rbody(){}
 
 void Rbody::get_omega(vect& v)
 {
@@ -38,7 +40,7 @@ void Rbody::get_omega(vect& v)
         v[i] = 2*homega[i];
 }
 
-void Rbody::get_angMom(vect& L)
+void Rbody::get_angular_momentum(vect& L)
 {
     for(int i = 0; i<3; ++i)
         L[i] = SV[i+10];
@@ -118,19 +120,19 @@ matrix& Rbody::integrate(FLOAT dt)
     return rpmatrix;
 }
 
-void Rbody::clearForce()
+void Rbody::clear_force()
 {
     for(int i = 3; i<6; ++i)
         DSV[k][i] = 0;
 }
 
-void Rbody::clearTorque()
+void Rbody::clear_torque()
 {
     for(int i = 10; i<13; ++i)
         DSV[k][i] = 0;
 }
 
-void Rbody::accForce_w(vect const& force,
+void Rbody::add_force_world_cs(vect const& force,
                           vect const& pos )
 {
     for(int i = 3; i<6; ++i)
@@ -142,7 +144,7 @@ void Rbody::accForce_w(vect const& force,
     DSV[k][12] += (pos[0]-SV[0])*force[1] - (pos[1]-SV[1])*force[0];
 }
 
-void Rbody::accForce_b(vect const& force,
+void Rbody::add_force_body_cs(vect const& force,
                           vect const& pos )
 {
     FLOAT t0,t1,t2;
@@ -157,7 +159,7 @@ void Rbody::accForce_b(vect const& force,
     DSV[k][12] += rpmatrix[2]*t0 + rpmatrix[6]*t1 + rpmatrix[10]*t2;
 }
 
-void Rbody::accGForce_w(vect const& force)
+void Rbody::add_g_force_world_cs(vect const& force)
 {
     for(int i = 3; i<6; ++i)
     {
@@ -165,14 +167,14 @@ void Rbody::accGForce_w(vect const& force)
     }
 }
 
-void Rbody::accGForce_b(vect const& force)
+void Rbody::add_g_force_body_cs(vect const& force)
 {
     DSV[k][3] += rpmatrix[0]*force[0] + rpmatrix[4]*force[1] + rpmatrix[8]*force[2];
     DSV[k][4] += rpmatrix[1]*force[0] + rpmatrix[5]*force[1] + rpmatrix[9]*force[2];
     DSV[k][5] += rpmatrix[2]*force[0] + rpmatrix[6]*force[1] + rpmatrix[10]*force[2];
 }
 
-void Rbody::accTorque_w(vect const& torque)
+void Rbody::add_torque_world_cs(vect const& torque)
 {
     for(int i = 10; i<13; ++i)
     {
@@ -180,7 +182,7 @@ void Rbody::accTorque_w(vect const& torque)
     }
 }
 
-void Rbody::accTorque_b(vect const& torque)
+void Rbody::add_torque_body_cs(vect const& torque)
 {
     DSV[k][10] += rpmatrix[0]*torque[0] + rpmatrix[4]*torque[1] + rpmatrix[8]*torque[2];
     DSV[k][11] += rpmatrix[1]*torque[0] + rpmatrix[5]*torque[1] + rpmatrix[9]*torque[2];
